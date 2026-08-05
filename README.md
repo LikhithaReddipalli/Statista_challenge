@@ -102,20 +102,15 @@ Full rationale for each choice: [DESIGN.md § Libraries used and why](DESIGN.md#
 
 ## Known limitations
 
-- No pytest unit suite — `tests/test_edge_cases.py` proves graceful degradation end-to-end, but
-  there's no per-function unit coverage.
-- LLM planner output isn't deterministic — same input can yield different slide counts/wording
-  between runs. The rule-based planner exists as a stable fallback.
-- No LLM retry or response caching — a transient API failure falls back immediately rather than
-  retrying.
-- Only four chart types (ranking, comparison, pie, trend) — no stacked bar or scatter.
-- Text-overflow guards are heuristic (estimated line-height), not a real layout engine.
-- Insight-level fields (`category`, `insight`, `source`) are matched by exact key name with no
-  alias fallback — unlike metric fields, which try several known aliases before falling back to
-  "first numeric / first non-numeric field" (see `validator._metric_from_raw`). A differently
-  named Statista export variant would silently produce blank fields there instead of erroring.
-- `key_message` and `bullets` aren't length-validated the way `KpiCard` fields are (`models.py`)
-  — the renderer truncates/caps them defensively, but an overly long LLM-generated field would
-  degrade visually rather than fail validation.
+- No pytest unit suite, just end-to-end fallback/degradation checks.
+- LLM planner output isn't deterministic.
+- No LLM retry or response caching.
+- Only four chart types (ranking, comparison, pie, trend).
+- Pie/comparison split is a simple sum-check heuristic.
+- `_metric_from_raw`'s generic fallback can pick the wrong field on an unfamiliar shape.
+- Insight-level fields (`category`, `insight`, `source`) have no alias fallback.
+- `key_message`/`bullets` aren't length-validated like `KpiCard` fields are.
+- Text-overflow guards are heuristic, not a real layout engine.
+- Streamlit preview is minimal — no in-browser slide preview.
 
-Reasoning and more detail for each: [DESIGN.md § Known limitations](DESIGN.md#known-limitations).
+Trade-offs for each: [DESIGN.md § Known limitations](DESIGN.md#known-limitations).

@@ -79,7 +79,7 @@ detail. Capped at 3 either way — anything beyond that is dropped.
 
 ## Known limitations
 
-| Limitation | Why it's acceptable here |
+| Limitation | Trade-off |
 |---|---|
 | No pytest unit suite | `tests/test_edge_cases.py` proves fallback/degradation end-to-end, which mattered more given the scope. |
 | LLM planner isn't deterministic | Inherent to using an LLM for planning. The rule-based planner is the stable baseline. |
@@ -89,6 +89,8 @@ detail. Capped at 3 either way — anything beyond that is dropped.
 | `_metric_from_raw`'s generic fallback can pick the wrong field | On an unfamiliar metric shape it grabs the first non-numeric field as the label and first numeric field as the value — could silently plot the wrong number (e.g. an `id`). Feeds the chart directly, so this is a real risk, not just cosmetic. |
 | Text-overflow guards are heuristic | Bullet caps estimate fit from a fixed line-height, not real font metrics — prevents overflow but isn't pixel-exact. |
 | Streamlit preview is minimal | Shows detected categories + a summary; you download the `.pptx` to see the actual deck. |
+| Insight-level fields have no alias fallback | `category`/`insight`/`source` are matched by exact key name, unlike metric fields which try several aliases (see `validator._metric_from_raw`). A differently-named export variant would silently produce blank fields instead of erroring. |
+| `key_message`/`bullets` aren't length-validated | Unlike `KpiCard` fields (`models.py`), an overly long LLM-generated field degrades visually via the renderer's truncation rather than failing validation. |
 
 ## Libraries used and why
 
