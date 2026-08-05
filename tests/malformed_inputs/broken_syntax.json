@@ -1,0 +1,15 @@
+{
+  "analysis": {
+    "title": "Gen Z Purchase Behavior",
+    "summary": "This file is intentionally broken JSON syntax for manual testing.",
+    "key_insights": [
+      {
+        "category": "Broken Trailing Comma",
+        "insight": "This array has a trailing comma, which is invalid JSON.",
+        "metrics": [
+          {"brand": "The Ordinary", "rank": 1, "percentage": 20},
+        ]
+      }
+    ],
+  }
+}

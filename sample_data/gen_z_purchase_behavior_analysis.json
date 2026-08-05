@@ -1,0 +1,169 @@
+{
+  "analysis": {
+    "title": "Gen Z Purchase Behavior: Key Insights from Statista Data",
+    "summary": "Regarding the purchasing behavior of Gen Z, the available Statista data presents the following picture:\n\nDigital impulses have a particularly strong influence on purchasing decisions: Influencer posts influenced 57% of Gen Z in the USA in 2025, and posts from brands they already follow motivated 54% to purchase a product or service. In the fashion context, product experience also plays an important role: 51% of Gen Z in the USA stated in 2025 that trying on clothing before purchase is essential. When it comes to brands, the available data shows a strong beauty orientation: in 2025, The Ordinary was the most popular brand among Gen Z in the USA, and beauty brands dominated the brands that are disproportionately popular with Gen Z. At the same time, there is evidence of brand loyalty: two out of five Gen Z consumers in the USA stated in 2025 that they have a favorite brand they shop from. For context: The Statista data used here refers to the USA. It is also noteworthy that there is a time discrepancy in one source: the source was published on October 17, 2024, but refers to a value for 2025. Based on general knowledge (not from Statista data): such statements should be interpreted more as forward-looking.",
+    "key_insights": [
+      {
+        "category": "Digital Impulses & Purchase Influence",
+        "insight": "Digital channels are the primary drivers of Gen Z purchase decisions.",
+        "metrics": [
+          {
+            "action": "Influencer posts",
+            "percentage": 57,
+            "description": "An influencer's post influences purchase decisions"
+          },
+          {
+            "action": "Brand social posts",
+            "percentage": 54,
+            "description": "Posts from brands they already follow motivate purchase"
+          },
+          {
+            "action": "Feed advertisements",
+            "percentage": 49,
+            "description": "An ad in their social feed influences purchase"
+          },
+          {
+            "action": "Friend recommendations",
+            "percentage": 40,
+            "description": "A friend's post influences purchase decisions"
+          }
+        ],
+        "source": {
+          "id": 1654230,
+          "name": "Actions influencing Gen Zers' purchase decisions in the United States in 2025",
+          "conductor": "GoDaddy",
+          "publication_date": "October 2024",
+          "region": "United States",
+          "respondents": "1,000 consumers (Gen Z and Millennials)"
+        }
+      },
+      {
+        "category": "Fashion & Product Experience",
+        "insight": "Physical product experience and personal preference are critical in fashion purchasing.",
+        "metrics": [
+          {
+            "statement": "When shopping for clothes, trying them on is essential to me",
+            "percentage": 51,
+            "description": "Trying on clothing before purchase is essential"
+          },
+          {
+            "statement": "I have a favorite fashion brand that I prefer to buy",
+            "percentage": 40,
+            "description": "Brand loyalty among Gen Z"
+          },
+          {
+            "statement": "I often buy fashion items based on the latest trends",
+            "percentage": 32,
+            "description": "Trend-driven purchase behavior"
+          },
+          {
+            "statement": "For me, premium fashion brands are worth the higher price",
+            "percentage": 25,
+            "description": "Willingness to pay premium for established brands"
+          },
+          {
+            "statement": "I avoid fashion brands that do not ensure fair labor practices",
+            "percentage": 21,
+            "description": "Ethical considerations in brand selection"
+          }
+        ],
+        "source": {
+          "id": 1612129,
+          "name": "Gen Z attitudes toward fashion in the United States in 2025",
+          "conductor": "Statista Consumer Insights",
+          "publication_date": "December 2025",
+          "region": "United States",
+          "respondents": 8604,
+          "age_group": "16 to 29 years old",
+          "survey_period": "January 1 to December 17, 2025"
+        }
+      },
+      {
+        "category": "Brand Preferences & Beauty Dominance",
+        "insight": "Beauty brands dominate Gen Z brand preferences, with skincare leading the category.",
+        "metrics": [
+          {
+            "rank": 1,
+            "brand": "The Ordinary",
+            "category": "Skincare",
+            "percentage": 20
+          },
+          {
+            "rank": 2,
+            "brand": "Victoria's Secret",
+            "category": "Fashion/Beauty",
+            "percentage": 19
+          },
+          {
+            "rank": 3,
+            "brand": "Samyang",
+            "category": "Food",
+            "percentage": 19
+          },
+          {
+            "rank": 4,
+            "brand": "Fenty Beauty",
+            "category": "Beauty/Cosmetics",
+            "percentage": 12
+          },
+          {
+            "rank": 5,
+            "brand": "Trojan",
+            "category": "Personal Care",
+            "percentage": 12
+          },
+          {
+            "rank": 6,
+            "brand": "Rare Beauty",
+            "category": "Cosmetics",
+            "percentage": 11
+          },
+          {
+            "rank": 7,
+            "brand": "Morphe",
+            "category": "Beauty/Makeup",
+            "percentage": 11
+          },
+          {
+            "rank": 8,
+            "brand": "Summer Fridays",
+            "category": "Skincare",
+            "percentage": 10
+          },
+          {
+            "rank": 9,
+            "brand": "Lush",
+            "category": "Beauty/Personal Care",
+            "percentage": 10
+          },
+          {
+            "rank": 10,
+            "brand": "Panoxyl",
+            "category": "Skincare",
+            "percentage": 10
+          }
+        ],
+        "source": {
+          "id": 1624642,
+          "name": "Most popular brands among Generation Z in the United States in 2025",
+          "conductor": "Numerator",
+          "publication_date": "August 2025",
+          "region": "United States",
+          "respondents": 1010,
+          "survey_type": "Online survey",
+          "survey_period": "June 30, 2024 to June 30, 2025"
+        }
+      }
+    ],
+    "data_sources": {
+      "primary_region": "United States",
+      "note": "The Statista data used refers exclusively to the United States market.",
+      "caveat": "One source shows a time discrepancy: published on October 17, 2024, but references 2025 data. Such forward-looking statements should be interpreted as projections rather than confirmed historical data."
+    },
+    "methodology": {
+      "approach": "Analysis based on three independent Statista surveys",
+      "timeframe": "Data collected between June 2024 and December 2025",
+      "total_respondents": "Approximately 10,600+ combined respondents"
+    }
+  }
+}

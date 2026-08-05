@@ -1,0 +1,22 @@
+{
+  "analysis": {
+    "title": "Insight Without Source Metadata",
+    "summary": "This analysis includes an insight whose source metadata was dropped upstream, to test that the renderer degrades gracefully instead of failing.",
+    "key_insights": [
+      {
+        "category": "Missing Source Example",
+        "insight": "This insight has metrics but no source object at all.",
+        "metrics": [
+          {"action": "Some action", "percentage": 42, "description": "Example metric"},
+          {"action": "Another action", "percentage": 30, "description": "Example metric"}
+        ]
+      }
+    ],
+    "data_sources": {
+      "primary_region": "United States"
+    },
+    "methodology": {
+      "approach": "Single insight, no source."
+    }
+  }
+}

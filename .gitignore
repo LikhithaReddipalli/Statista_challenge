@@ -1,0 +1,7 @@
+virtual/
+__pycache__/
+*.pyc
+*.pptx
+!results/*.pptx
+.DS_Store
+.env

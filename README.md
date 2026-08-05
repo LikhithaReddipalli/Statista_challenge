@@ -1,0 +1,115 @@
+# AI Presentation Generator
+
+Turns a structured Statista AI-chat analysis (JSON) into a polished, editable PowerPoint deck.
+
+Given the JSON and an optional instruction ("5-slide exec summary", "detailed deck"), it plans a
+slide-by-slide structure — title, summary, one chart or text slide per key insight — picking a
+chart type (ranking / comparison / pie / trend) that matches what each metric actually means, then
+renders it to a `.pptx` with real, editable PowerPoint charts.
+
+AI is scoped to *planning* (what the slides should say); rendering to `.pptx` is 100%
+deterministic code. See [DESIGN.md](DESIGN.md) for the full rationale, chart-type rules,
+validation/fallback behavior, and known limitations.
+
+```
+Input JSON → validate → normalize → plan (LLM or rule-based) → validate plan → render → .pptx
+```
+
+```
+project/
+  app.py         Streamlit UI 
+  main.py        CLI + generate_presentation() — the one function both app.py and the CLI call
+  planner.py     plan_llm() / plan_rule_based()
+  renderer.py    SlideSpec → .pptx (python-pptx, native charts)
+  validator.py   validate_input / normalize_metrics / build_context
+  models.py      Metric (dataclass), SlideSpec (pydantic)
+  sample_data/   the provided Gen Z example JSON
+  results/       example output — see below
+  tests/         deliberately malformed inputs + a script that exercises them
+```
+
+## Example output
+
+`results/` contains two decks generated from `sample_data/gen_z_purchase_behavior_analysis.json`,
+so both planning paths can be inspected directly:
+
+- `presentation.pptx` — rule-based planner (`--no-llm`)
+- `presentation_With_LLM.pptx` — LLM planner (Gemini), including a KPI-card slide
+
+## Setup
+
+Requires **Python 3.12** (see `.python-version`; pinned because that's what
+this was built and tested against — see `requirements.txt` for details).
+
+```bash
+python3.12 -m venv virtual
+./virtual/bin/pip install -r requirements.txt
+```
+
+For the LLM planner, copy `.env.example` to `.env` and fill in your `GEMINI_API_KEY`
+(get one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)):
+
+```bash
+cp .env.example .env
+```
+
+`GEMINI_MODEL` and `GEMINI_TIMEOUT_SECONDS` are optional — see `.env.example` for defaults.
+
+## Running it
+
+### CLI
+
+```bash
+# LLM planner (default), with an instruction; falls back automatically on failure
+./virtual/bin/python main.py sample_data/gen_z_purchase_behavior_analysis.json \
+  --prompt "5-slide deck for C-level executives, focus on brand strategy" \
+  -o presentation.pptx
+
+# Rule-based planner only (no AI, no GEMINI_API_KEY needed)
+./virtual/bin/python main.py sample_data/gen_z_purchase_behavior_analysis.json --no-llm
+```
+
+### Web UI
+
+```bash
+./virtual/bin/streamlit run app.py
+```
+
+Upload a JSON file, optionally type an instruction, leave "Use LLM Planner" checked (or
+uncheck it for the rule-based planner), click Generate, download the `.pptx`.
+
+## Libraries & LLM used
+
+- **python-pptx** — the only Python library with a real *native* PowerPoint chart API (as
+  opposed to pasting in a static image), so the output stays editable in PowerPoint.
+- **pydantic** — validates `SlideSpec`, the one object that crosses the LLM trust boundary, and
+  generates the LLM prompt's JSON schema straight from the model so the two can't drift apart.
+- **Gemini, via langchain-google-genai** — a thin wrapper for a single one-shot `invoke()` call
+  in `plan_llm()`; no chains/agents, just the model client. Chosen for the planning step because
+  slide structure genuinely benefits from judgment (how many slides, what to cut) that a fixed
+  script can't make well — see [DESIGN.md](DESIGN.md#problem-framing-presentation-planning-not-powerpoint-generation).
+- **python-dotenv** — loads `GEMINI_API_KEY` from `.env` instead of requiring a shell export.
+- **streamlit** — the whole UI is one form (upload, text area, checkbox, button, download);
+  Streamlit covers it in well under 100 lines with no separate frontend build.
+
+Full rationale for each choice: [DESIGN.md § Libraries used and why](DESIGN.md#libraries-used-and-why).
+
+## Known limitations
+
+- No pytest unit suite — `tests/test_edge_cases.py` proves graceful degradation end-to-end, but
+  there's no per-function unit coverage.
+- LLM planner output isn't deterministic — same input can yield different slide counts/wording
+  between runs. The rule-based planner exists as a stable fallback.
+- No LLM retry or response caching — a transient API failure falls back immediately rather than
+  retrying.
+- Only four chart types (ranking, comparison, pie, trend) — no stacked bar or scatter.
+- Text-overflow guards are heuristic (estimated line-height), not a real layout engine.
+- Insight-level fields (`category`, `insight`, `source`) are matched by exact key name with no
+  alias fallback — unlike metric fields, which try several known aliases before falling back to
+  "first numeric / first non-numeric field" (see `validator._metric_from_raw`). A differently
+  named Statista export variant would silently produce blank fields there instead of erroring.
+- `key_message` and `bullets` aren't length-validated the way `KpiCard` fields are (`models.py`)
+  — the renderer truncates/caps them defensively, but an overly long LLM-generated field would
+  degrade visually rather than fail validation.
+
+Reasoning and more detail for each: [DESIGN.md § Known limitations](DESIGN.md#known-limitations).

@@ -1,0 +1,9 @@
+# Requires Python 3.12 (see .python-version). Built and tested against
+# 3.12 specifically — dict/list built-in generics in type hints (e.g.
+# `dict[str, Any]`) need 3.9+, but pin matches the venv this was developed
+# and tested with; other 3.9+ versions are untested, not necessarily broken.
+python-pptx==1.0.2
+pydantic==2.13.4
+python-dotenv==1.2.2
+langchain-google-genai==4.3.2
+streamlit==1.60.0

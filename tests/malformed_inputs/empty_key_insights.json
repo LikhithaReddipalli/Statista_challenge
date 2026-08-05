@@ -1,0 +1,14 @@
+{
+  "analysis": {
+    "title": "Inconclusive Market Query",
+    "summary": "The available Statista data did not surface any structured insights for this specific query. This is a narrow or inconclusive result rather than an error.",
+    "key_insights": [],
+    "data_sources": {
+      "primary_region": "United States",
+      "note": "No matching structured data found."
+    },
+    "methodology": {
+      "approach": "Query returned no structured insights."
+    }
+  }
+}

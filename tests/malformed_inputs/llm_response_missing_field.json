@@ -1,0 +1,7 @@
+[
+  {
+    "layout": "chart",
+    "chart_type": "comparison",
+    "bullets": ["Missing the required 'title' field on purpose"]
+  }
+]
