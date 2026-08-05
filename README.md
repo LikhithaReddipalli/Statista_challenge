@@ -38,6 +38,11 @@ so both planning paths can be inspected directly:
 
 ## Setup
 
+```bash
+git clone https://github.com/LikhithaReddipalli/Statista_challenge.git
+cd Statista_challenge
+```
+
 Requires **Python 3.12** (see `.python-version`; pinned because that's what
 this was built and tested against — see `requirements.txt` for details).
 
@@ -80,8 +85,9 @@ uncheck it for the rule-based planner), click Generate, download the `.pptx`.
 
 ## Libraries & LLM used
 
-- **python-pptx** — the only Python library with a real *native* PowerPoint chart API (as
-  opposed to pasting in a static image), so the output stays editable in PowerPoint.
+- **python-pptx** — the standard, actively-maintained Python library with a real *native*
+  PowerPoint chart API (as opposed to pasting in a static image), so the output stays editable
+  in PowerPoint.
 - **pydantic** — validates `SlideSpec`, the one object that crosses the LLM trust boundary, and
   generates the LLM prompt's JSON schema straight from the model so the two can't drift apart.
 - **Gemini, via langchain-google-genai** — a thin wrapper for a single one-shot `invoke()` call

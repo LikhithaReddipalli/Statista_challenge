@@ -35,30 +35,24 @@ the only node guaranteed to succeed.
 
 | Decision | Why |
 |---|---|
-| LLM never touches rendering | A hallucinated field or wrong type can't crash python-pptx or produce a broken slide — it fails pydantic validation first and falls back instead. |
-| Rendering is pure code, not AI | Same `SlideSpec` in → same `.pptx` bytes out, every time. A presentation tool that sometimes fails to render isn't usable. |
-| Rule-based planner always exists | Guarantees the tool works with zero AI dependency — no API key, no network, still produces a deck. |
-| Native PowerPoint charts, not matplotlib images | A Statista employee can click a chart and edit colors/data/type in PowerPoint itself. A pasted image looks the same but isn't editable — defeats the point of handing off a *usable* artifact. |
+| LLM never touches rendering | A hallucinated field or wrong type fails pydantic validation and falls back — it never reaches python-pptx. |
+| Rendering is pure code, not AI | Same `SlideSpec` in → same `.pptx` bytes out, every time. |
+| Rule-based planner always exists | The tool works with zero AI dependency — no API key, no network, still produces a deck. |
+| Native PowerPoint charts, not matplotlib images | Editable in PowerPoint (colors, data, type) — a pasted image looks the same but isn't. |
 
 ## Validation & fallback, in one glance
 
 - **`SlideSpec`** (pydantic) is the *only* thing that crosses the LLM trust boundary — it's the
   one model that needs real validation. `Metric` is a plain dataclass; nothing external lands
   there directly.
-- **`plan_llm()` returns `None`** (triggering fallback to `plan_rule_based()`) if: the package
-  isn't installed, `GEMINI_API_KEY` is missing, the API call raises, the response isn't valid
-  JSON, or any slide fails `SlideSpec` validation. `main.generate_presentation()` sets
-  `fell_back=True` so the CLI/UI can surface it.
+- **`plan_llm()` returns `None`** on any failure — missing package, missing API key, a raised
+  API error, invalid JSON, or a `SlideSpec` validation error — triggering fallback to
+  `plan_rule_based()`. `fell_back=True` on the result lets the CLI/UI surface it.
 - **Renderer never skips or crashes on bad content** — it degrades instead:
   - No `chart_type` → text-only slide, not a missing one.
   - No `source` → footer reads `"Source unavailable."` instead of going blank.
   - Empty `key_insights` → 2-slide summary-only deck instead of an error.
-  - Too many bullets to fit → capped with a `"+ N more"` line instead of overflowing off-slide.
-
-**Rank-vs-percentage rule** (`validator._metric_from_raw`, reapplied in
-`planner._chart_type_for_metrics`): when a metric has both a `rank` and a `percentage` (e.g. a
-brand ranking that also reports market share), `rank` wins and the metric — and its whole slide —
-renders as a ranking chart. Ordering is the more meaningful signal for a ranked list.
+  - Too many bullets to fit → capped and the rest silently dropped, instead of overflowing off-slide.
 
 ## Chart types — matched to what the data *means*, not its surface shape
 
@@ -72,38 +66,35 @@ All four inputs are technically "numbers," but they answer different questions:
 | `trend` | A time series | Line, with the key point as a larger marker |
 
 Below 2 or above 6 slices, or values that don't sum to ~100, a would-be pie stays a `comparison`
-bar instead — an incorrectly-chosen pie is more misleading than an incorrectly-chosen bar. The
-rule-based planner detects this with a sum check (`_looks_like_part_to_whole`); the LLM planner is
-told the same rule in its prompt.
+bar instead — a wrongly-chosen pie is more misleading than a wrongly-chosen bar.
 
 Bars render in one flat color and ignore `highlight` on purpose — uniform by design. `highlight`
 only applies to `trend` lines, where per-point emphasis is the actual intent.
 
 ## Bullets on chart slides are opt-in
 
-Default chart slide = chart + one-line `key_message`, no bullets — matching the "clean,
-data-first" brief. `plan_rule_based()` always leaves `bullets=[]`. The LLM planner only fills
-`bullets` in when the user's instruction asks for more detail (e.g. "detailed", "with summary of
-every sector") — that judgment call belongs to the planner, not the renderer. Either way, bullets
-are capped at 3 with a "+N more" overflow, so a verbose LLM response can't push into the footer.
+Default chart slide = chart + one-line `key_message`, no bullets. `plan_rule_based()` always
+leaves `bullets=[]`; the LLM planner only adds them when the user's instruction asks for more
+detail. Capped at 3 either way — anything beyond that is dropped.
 
 ## Known limitations
 
 | Limitation | Why it's acceptable here |
 |---|---|
-| No pytest unit suite | `tests/test_edge_cases.py` proves fallback/degradation end-to-end; given the scope, that mattered more than isolated unit coverage. |
-| LLM planner isn't deterministic | Inherent to using an LLM for planning — same input can yield different slide counts/wording. The rule-based planner is the stable baseline. |
-| No LLM retry or response caching | A transient failure falls back immediately (fail fast, degrade gracefully) rather than retrying — the safer default for a prototype. |
-| Only four chart types | Ranking, comparison, pie, trend cover the sample data. Stacked bar/scatter aren't wired up — nothing calls for them yet. |
-| Pie/comparison heuristic is a simple sum check | Right for genuine splits (market share by region), but independent stats summing near 100 by coincidence could misfire. The LLM planner is more reliable here since it reads insight text, not just numbers. |
-| Text-overflow guards are heuristic | Bullet caps estimate fit from a fixed line-height, not real font metrics. Prevents the worst case (running off-slide) but isn't pixel-exact. |
-| Streamlit preview is minimal | Shows detected categories + a summary, no in-browser slide preview — you download the `.pptx` to see it. |
+| No pytest unit suite | `tests/test_edge_cases.py` proves fallback/degradation end-to-end, which mattered more given the scope. |
+| LLM planner isn't deterministic | Inherent to using an LLM for planning. The rule-based planner is the stable baseline. |
+| No LLM retry or response caching | Fails fast and degrades to the rule-based planner instead — the safer default for a prototype. |
+| Only four chart types | Ranking, comparison, pie, trend cover the sample data; nothing calls for more yet. |
+| Pie/comparison heuristic is a simple sum check | Independent stats summing near 100 by coincidence could misfire; the LLM planner is more reliable here since it reads insight text, not just numbers. |
+| `_metric_from_raw`'s generic fallback can pick the wrong field | On an unfamiliar metric shape it grabs the first non-numeric field as the label and first numeric field as the value — could silently plot the wrong number (e.g. an `id`). Feeds the chart directly, so this is a real risk, not just cosmetic. |
+| Text-overflow guards are heuristic | Bullet caps estimate fit from a fixed line-height, not real font metrics — prevents overflow but isn't pixel-exact. |
+| Streamlit preview is minimal | Shows detected categories + a summary; you download the `.pptx` to see the actual deck. |
 
 ## Libraries used and why
 
 | Library | Why |
 |---|---|
-| **python-pptx** | Only Python library with a real *native* chart API — not a pasted-in image. |
+| **python-pptx** | Standard, actively-maintained library with a real *native* chart API — not a pasted-in image. |
 | **pydantic** | Validates `SlideSpec` (the LLM trust boundary) and generates the prompt's JSON schema from the model itself, so prompt and schema can't drift apart. |
 | **langchain-google-genai** | Thin wrapper for one one-shot `invoke()` call in `plan_llm()` — no chains, agents, or LangGraph. |
 | **python-dotenv** | Loads `GEMINI_API_KEY` from `.env` instead of requiring a shell export. |
