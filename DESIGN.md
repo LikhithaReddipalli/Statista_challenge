@@ -2,7 +2,7 @@
 
 Quick-reference for *why* things are built this way. For setup/usage, see [README.md](README.md).
 
-## The one architectural decision everything else follows
+## Architecture
 
 **AI plans, code renders.** The LLM decides *what the slides should say* (how many, what order,
 which chart). Turning that plan into `.pptx` bytes is 100% deterministic — the renderer never
@@ -40,6 +40,8 @@ the only node guaranteed to succeed.
 | Rule-based planner always exists | The tool works with zero AI dependency — no API key, no network, still produces a deck. |
 | Native PowerPoint charts, not matplotlib images | Editable in PowerPoint (colors, data, type) — a pasted image looks the same but isn't. |
 
+**Libraries used and why:** [README § Libraries & LLM used](README.md#libraries--llm-used).
+
 ## Validation & fallback, in one glance
 
 - **`SlideSpec`** (pydantic) is the *only* thing that crosses the LLM trust boundary — it's the
@@ -54,7 +56,7 @@ the only node guaranteed to succeed.
   - Empty `key_insights` → 2-slide summary-only deck instead of an error.
   - Too many bullets to fit → capped and the rest silently dropped, instead of overflowing off-slide.
 
-## Chart types — matched to what the data *means*, not its surface shape
+## Chart type selection
 
 All four inputs are technically "numbers," but they answer different questions:
 
@@ -71,7 +73,7 @@ bar instead — a wrongly-chosen pie is more misleading than a wrongly-chosen ba
 Bars render in one flat color and ignore `highlight` on purpose — uniform by design. `highlight`
 only applies to `trend` lines, where per-point emphasis is the actual intent.
 
-## Bullets on chart slides are opt-in
+## Chart-slide bullets
 
 Default chart slide = chart + one-line `key_message`, no bullets. `plan_rule_based()` always
 leaves `bullets=[]`; the LLM planner only adds them when the user's instruction asks for more
@@ -91,16 +93,6 @@ detail. Capped at 3 either way — anything beyond that is dropped.
 | Streamlit preview is minimal | Shows detected categories + a summary; you download the `.pptx` to see the actual deck. |
 | Insight-level fields have no alias fallback | `category`/`insight`/`source` are matched by exact key name, unlike metric fields which try several aliases (see `validator._metric_from_raw`). A differently-named export variant would silently produce blank fields instead of erroring. |
 | `key_message`/`bullets` aren't length-validated | Unlike `KpiCard` fields (`models.py`), an overly long LLM-generated field degrades visually via the renderer's truncation rather than failing validation. |
-
-## Libraries used and why
-
-| Library | Why |
-|---|---|
-| **python-pptx** | Standard, actively-maintained library with a real *native* chart API — not a pasted-in image. |
-| **pydantic** | Validates `SlideSpec` (the LLM trust boundary) and generates the prompt's JSON schema from the model itself, so prompt and schema can't drift apart. |
-| **langchain-google-genai** | Thin wrapper for one one-shot `invoke()` call in `plan_llm()` — no chains, agents, or LangGraph. |
-| **python-dotenv** | Loads `GEMINI_API_KEY` from `.env` instead of requiring a shell export. |
-| **streamlit** | The UI is one form (upload, text, checkbox, button, download) — Streamlit covers it in well under 100 lines, no frontend build. |
 
 ## Possible future extensions
 

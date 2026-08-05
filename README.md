@@ -28,14 +28,6 @@ project/
   tests/         deliberately malformed inputs + a script that exercises them
 ```
 
-## Example output
-
-`results/` contains two decks generated from `sample_data/gen_z_purchase_behavior_analysis.json`,
-so both planning paths can be inspected directly:
-
-- `presentation.pptx` — rule-based planner (`--no-llm`)
-- `presentation_With_LLM.pptx` — LLM planner (Gemini), including a KPI-card slide
-
 ## Setup
 
 ```bash
@@ -83,6 +75,14 @@ cp .env.example .env
 Upload a JSON file, optionally type an instruction, leave "Use LLM Planner" checked (or
 uncheck it for the rule-based planner), click Generate, download the `.pptx`.
 
+## Example output
+
+`results/` contains two decks generated from `sample_data/gen_z_purchase_behavior_analysis.json`,
+so both planning paths can be inspected directly:
+
+- `presentation.pptx` — rule-based planner (`--no-llm`)
+- `presentation_With_LLM.pptx` — LLM planner (Gemini), including a KPI-card slide
+
 ## Libraries & LLM used
 
 - **python-pptx** — the standard, actively-maintained Python library with a real *native*
@@ -93,12 +93,10 @@ uncheck it for the rule-based planner), click Generate, download the `.pptx`.
 - **Gemini, via langchain-google-genai** — a thin wrapper for a single one-shot `invoke()` call
   in `plan_llm()`; no chains/agents, just the model client. Chosen for the planning step because
   slide structure genuinely benefits from judgment (how many slides, what to cut) that a fixed
-  script can't make well — see [DESIGN.md](DESIGN.md#problem-framing-presentation-planning-not-powerpoint-generation).
+  script can't make well — see [DESIGN.md § Architecture](DESIGN.md#architecture).
 - **python-dotenv** — loads `GEMINI_API_KEY` from `.env` instead of requiring a shell export.
 - **streamlit** — the whole UI is one form (upload, text area, checkbox, button, download);
   Streamlit covers it in well under 100 lines with no separate frontend build.
-
-Full rationale for each choice: [DESIGN.md § Libraries used and why](DESIGN.md#libraries-used-and-why).
 
 ## Known limitations
 
@@ -113,4 +111,4 @@ Full rationale for each choice: [DESIGN.md § Libraries used and why](DESIGN.md#
 - Text-overflow guards are heuristic, not a real layout engine.
 - Streamlit preview is minimal — no in-browser slide preview.
 
-Trade-offs for each: [DESIGN.md § Known limitations](DESIGN.md#known-limitations).
+**Trade-offs for each:** [DESIGN.md § Known limitations](DESIGN.md#known-limitations).
