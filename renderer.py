@@ -334,6 +334,38 @@ def _style_category_axis(category_axis) -> None:
     category_axis.tick_labels.font.color.rgb = TEXT_DARK
 
 
+def _style_value_axis(value_axis, title="%") -> None:
+    """Shared 0-100 value axis for the bar and line charts: fixed scale,
+    quarter-step gridlines, and a "%" axis title.
+
+    Metric values arrive as plain 0-100 numbers (see _style_data_labels'
+    callers), so pinning the scale to 0-100 here — rather than letting
+    PowerPoint auto-fit it to the data's own min/max — is what actually
+    answers "57 out of what?": every chart reads against the same fixed
+    scale instead of one another the data happens to produce.
+    """
+    value_axis.minimum_scale = 0
+    value_axis.maximum_scale = 100
+    value_axis.major_unit = 25
+    value_axis.visible = True
+    value_axis.has_major_gridlines = True
+    value_axis.major_gridlines.format.line.color.rgb = GRIDLINE
+    value_axis.major_gridlines.format.line.width = Pt(0.25)
+    value_axis.format.line.fill.background()
+    value_axis.tick_labels.font.size = Pt(11)
+    value_axis.tick_labels.font.name = FONT
+    value_axis.tick_labels.font.color.rgb = TEXT_MUTED
+
+    value_axis.has_title = True
+    axis_title = value_axis.axis_title
+    axis_title.text_frame.text = title
+    title_font = axis_title.text_frame.paragraphs[0].font
+    title_font.size = Pt(11)
+    title_font.name = FONT
+    title_font.color.rgb = TEXT_MUTED
+    title_font.bold = False
+
+
 def _add_bar_chart(slide: Slide, spec: SlideSpec, top, height=None) -> None:
     """Horizontal bar chart for both ranking and comparison metrics.
 
@@ -388,9 +420,7 @@ def _add_bar_chart(slide: Slide, spec: SlideSpec, top, height=None) -> None:
     _style_category_axis(category_axis)
     category_axis.format.line.fill.background()
 
-    value_axis = chart.value_axis
-    value_axis.visible = False
-    value_axis.has_major_gridlines = False
+    _style_value_axis(chart.value_axis)
 
 
 def _add_pie_chart(slide: Slide, spec: SlideSpec, top, height=None) -> None:
@@ -493,7 +523,11 @@ def _add_line_chart(slide: Slide, spec: SlideSpec, top, height=None) -> None:
     _style_category_axis(category_axis)
     category_axis.format.line.color.rgb = GRIDLINE
 
+    # No _style_value_axis() here, unlike the bar chart: trend values aren't
+    # guaranteed percentages (could be revenue, counts, etc.), so a forced
+    # 0-100 scale + "%" title would misrender non-percentage series.
     value_axis = chart.value_axis
+    value_axis.visible = True
     value_axis.tick_labels.font.size = Pt(12)
     value_axis.tick_labels.font.color.rgb = TEXT_MUTED
     value_axis.has_major_gridlines = True
